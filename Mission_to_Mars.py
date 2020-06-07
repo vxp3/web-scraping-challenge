@@ -15,7 +15,7 @@ def scrape_all():
          "feature_image": featuredImg(browser),
          "weather": marsWeather(browser),
          "fact": marsFacts(browser),
-        #  "hemisphere": hemisphere(browser)
+         "hemisphere_image_urls": hemisphere(browser)
     }
 
     browser.quit()
@@ -80,26 +80,28 @@ def marsFacts(browser):
 
 # define a function for Mars hemispheres
 def hemisphere(browser):
-    url3 = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+    url3="https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
     browser.visit(url3)
+    time.sleep(2) 
 
     html3 = browser.html
-    soup = BeautifulSoup(html3,"html.parser")
-    marHem = soup.find_all('div', class_= 'item')
-    base_url = "https://astrogeology.usgs.gov"
-    resultList = []
+    soup = BeautifulSoup(html3, "html.parser")
+    hemisphere= soup.findAll("div", class_="description")
+    hemiList=[]
+    base_url="http://astrogeology.usgs.gov"
 
-    # for loop to go through four hemispheres
-    for hem in marHem:
-        title = hem.find('div', class_='description').find('h3').text
+    for record in hemisphere:
+        title=record.find('a', class_="itemLink product-item").text
         browser.click_link_by_partial_text(title)
         time.sleep(1)
-        imageHem = hem.find('a', class_='itemLink product-item')['href']
-        url=base_url+ imageHem
+        html4 = browser.html
+        soup4 = BeautifulSoup(html4, 'html.parser')
+        image_url = soup4.find('img', class_='wide-image')['src']
+        url=base_url+image_url
         hemiSum={}
         hemiSum['title']=title
         hemiSum['url']=url
-        resultList.append(hemiSum)
+        hemiList.append(hemiSum)
         browser.visit(url3)
         time.sleep(1)
-    return resultList
+    return hemiList
